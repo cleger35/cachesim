@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 int addr_space = 24;
 int block_size;
@@ -7,6 +8,9 @@ int assoc;
 char write_policy;
 int cache_size;
 int num_blocks;
+int tag;
+int offset;
+int index;
 
 /* Will process and output all flags */
 void GetFlags(int argc, char *argv[]) 
@@ -51,8 +55,8 @@ void GetFlags(int argc, char *argv[])
 /* Prints header information for cache */
 void PrintHeader()
 {
-	int offset = num_sets;
-	int index = num_sets;
+	offset = num_sets;
+	index = num_sets;
 	int counter = 1;
 
 	while (offset != 0)
@@ -70,7 +74,7 @@ void PrintHeader()
 	}
 	index = ++counter;
 
-	int tag = addr_space - offset - index;
+	tag = addr_space - offset - index;
 
 	cache_size = (num_sets * block_size * assoc) / 1024;
 	num_blocks = num_sets * assoc;
@@ -101,7 +105,7 @@ void PrintHeader()
 	
 }
 
-void HexToBin(char hex[], int hexc, char *bin[6])
+void HexToBin(char hex[], int hexc, char *bin[])
 {
 	int i = 0;
 	while (i != hexc)
@@ -170,7 +174,7 @@ int main(int argc, char *argv[])
 	GetFlags(argc, argv);	
 	PrintHeader();
 	
-	char hex[6];
+	char  hex[6];
 	char *bin[6];
 
 	hex[0] = '0';
@@ -186,10 +190,26 @@ int main(int argc, char *argv[])
 
 	HexToBin(hex, hexc, bin);
 
+	char *str = bin[0];
+	char *newstr;
+	newstr = malloc(strlen(str)+1+4);
+	strcpy(newstr, str);
+
 	int i = 1;
-	printf("%6s", bin[0]);
-	for (i; i < hexc; i++)
-		printf("%s", bin[i]);	
+	printf("%7s", bin[0]);
+	for (i; i < hexc; i++) {
+		// printf("%s", bin[i]);
+		strcat(newstr, bin[i]);	
+	}	
+
+	for (i = 0; i < 24; i++) {
+		// printf("i=%d ", i);
+		printf("%c", newstr[i]);
+		if (i == 8 || i == 14)
+			printf(" ");
+
+	}
+
 	printf("\n");
 	return 0;
 }
